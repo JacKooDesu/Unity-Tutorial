@@ -23,13 +23,13 @@ namespace FileManagerTutorial
         [ContextMenu("讀檔 - state")]
         public void LoadState()
         {
-            state = FileManager<PlayerState>.Load("Save", "PlayerData");
+            FileManager<PlayerState>.Load("Save", "PlayerData", state);
         }
 
         [ContextMenu("讀檔 - mono")]
         public void LoadMono()
         {
-            FileManager<PlayerObject>.Load<PlayerObject>("Save", "PlayerDataMono", this);
+            FileManager<PlayerObject>.Load("Save", "PlayerDataMono", this);
         }
     }
 }

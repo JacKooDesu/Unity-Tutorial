@@ -17,7 +17,7 @@ namespace FileManagerTutorial
             File.WriteAllText($"{filePath}/{fileName}.sav", jsonData);  // json寫入
         }
 
-        public static T Load(string path, string name)
+        public static void Load(string path, string name, T target)
         {
             var filePath = $"{Application.dataPath}/{path}/{name}.sav";
             var deserializeData = (string)(null);   // json 解譯字串
@@ -29,31 +29,6 @@ namespace FileManagerTutorial
             catch (System.IO.FileNotFoundException)
             {
                 Debug.Log("FileNotFoundException");
-                return default(T);
-            }
-            catch (System.IO.DirectoryNotFoundException)
-            {
-                Debug.Log("DirectoryNotFoundException");
-                return default(T);
-            }
-
-            return JsonUtility.FromJson<T>(deserializeData);    // 從json轉換成 T
-        }
-
-        // 針對 MonoBehaviour 無法指定到物件上所寫的讀檔功能
-        // where 在泛型中指定為 MonoBehaviour
-        public static void Load<T1>(string path, string name, T1 target) where T1 : MonoBehaviour
-        {
-            var filePath = $"{Application.dataPath}/{path}/{name}.sav";
-            var deserializeData = (string)(null);
-
-            try
-            {
-                deserializeData = File.ReadAllText(filePath);
-            }
-            catch (System.IO.FileNotFoundException)
-            {
-                Debug.Log("FileNotFoundException");
                 return;
             }
             catch (System.IO.DirectoryNotFoundException)
@@ -62,7 +37,7 @@ namespace FileManagerTutorial
                 return;
             }
 
-            JsonUtility.FromJsonOverwrite(deserializeData, target);
+            JsonUtility.FromJsonOverwrite(deserializeData, target);     // 複寫target
         }
     }
 
