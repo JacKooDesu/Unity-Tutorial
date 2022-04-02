@@ -1,6 +1,9 @@
-﻿[System.Serializable]
-public class PlayerState
+﻿namespace FileManagerTutorial
 {
-    public string playerName;
-    public int level;
+    [System.Serializable]
+    public class PlayerState
+    {
+        public string playerName;
+        public int level;
+    }
 }
