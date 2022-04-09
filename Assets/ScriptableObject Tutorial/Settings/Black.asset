@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45d6583da0373c54aae905d3cee428f2, type: 3}
+  m_Name: Black
+  m_EditorClassIdentifier: 
+  speed: 6.08
+  color: {r: 0, g: 0, b: 0, a: 1}
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.28769282
+      value: -0.090818815
+      inSlope: -0.31045294
+      outSlope: 0.35958782
+      tangentMode: 1
+      weightedMode: 0
+      inWeight: 0.20374112
+      outWeight: 1
+    - serializedVersion: 3
+      time: 0.505887
+      value: 0.07018016
+      inSlope: -0.9333428
+      outSlope: -0.7732177
+      tangentMode: 1
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.43938977
+    - serializedVersion: 3
+      time: 0.5962498
+      value: -0.11082226
+      inSlope: -0.23545538
+      outSlope: -0.002894557
+      tangentMode: 1
+      weightedMode: 0
+      inWeight: 0.6809608
+      outWeight: 0.623225
+    - serializedVersion: 3
+      time: 0.7730274
+      value: 0.0075792745
+      inSlope: -0.23894924
+      outSlope: -0.23894924
+      tangentMode: 1
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 1.899217
+      outSlope: 1.899217
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.027522922
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  curveScale: 1.31
