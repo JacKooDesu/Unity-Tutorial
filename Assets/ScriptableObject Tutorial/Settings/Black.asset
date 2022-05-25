@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45d6583da0373c54aae905d3cee428f2, type: 3}
   m_Name: Black
   m_EditorClassIdentifier: 
-  speed: 6.08
+  speed: 7.6
   color: {r: 0, g: 0, b: 0, a: 1}
+  size: 0.7
   curve:
     serializedVersion: 2
     m_Curve:

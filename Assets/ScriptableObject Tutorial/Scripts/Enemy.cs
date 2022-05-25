@@ -23,9 +23,15 @@ namespace ScriptObjectTutorial
         {
             originVel = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)).normalized;
             velocity = originVel;
-            GetComponent<SpriteRenderer>().color = setting.color;
 
             SetupCurveValues();
+            Visualize();
+        }
+
+        public void Visualize()
+        {
+            transform.localScale = Vector3.one * setting.size;
+            GetComponent<SpriteRenderer>().color = setting.color;
         }
 
         void SetupCurveValues()
