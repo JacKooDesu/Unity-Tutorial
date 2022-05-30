@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Jackoo.Utils;
 
 public class Character2D : MonoBehaviour
 {
@@ -12,7 +13,6 @@ public class Character2D : MonoBehaviour
     public KeyCode jumpKey = KeyCode.Space;
     public KeyCode leftKey = KeyCode.LeftArrow;
     public KeyCode rightKey = KeyCode.RightArrow;
-
 
     [Header("移動設定")]
     public float acceleration = 5f; // 加速度
@@ -45,11 +45,17 @@ public class Character2D : MonoBehaviour
         }
 
         public Color gizmoColor = Color.cyan;
+
+        public void DrawGizmo()
+        {
+
+        }
     }
 
     [Header("射線設定")]
     public CastSetting[] groundCastSettings;
     public CastSetting[] wallCastSettings;
+    public CastSetting wallJumpSetting;
 
     // 內部變數
     Rigidbody2D rig;
@@ -57,6 +63,15 @@ public class Character2D : MonoBehaviour
     [SerializeField] bool isOnGorund = false;
     [SerializeField] bool isOnWall = false;
     Vector2 currentVelocity;
+
+    public enum State
+    {
+        HoldingArrow = 1 << 0,
+        FaceRight = 1 << 2,
+        FaceLeft = 1 << 3,
+    }
+
+    public int state;
 
     private void OnEnable()
     {
@@ -73,16 +88,43 @@ public class Character2D : MonoBehaviour
             jumpTime = 0f;
 
         if (Input.GetKeyDown(rightKey))
+        {
             transform.rotation = Quaternion.Euler(0, 0, 0);
+            state = (int)State.FaceRight;
+        }
         else if (Input.GetKeyDown(leftKey))
+        {
             transform.rotation = Quaternion.Euler(0, 180, 0);
+            state = (int)State.FaceLeft;
+        }
+
+        if (!Input.GetKey(rightKey) && !Input.GetKey(leftKey))
+        {
+            state &= (int)State.HoldingArrow ^ state;
+        }
+        else
+        {
+            state |= (int)State.HoldingArrow;
+        }
     }
 
     private void FixedUpdate()
     {
         if (jumpCount <= jumpMaxCount && jumpTime < jumpTimeMax && Input.GetKey(jumpKey))
         {
-            currentVelocity.y += jumpForce;
+            if (!isOnWall)
+            {
+                currentVelocity.y += jumpForce;
+            }
+            else
+            {
+                var dir = (state & (int)State.FaceRight) == (int)State.FaceRight ?
+                    wallJumpSetting.Direction :
+                    Vector2.Reflect(wallJumpSetting.Direction, Vector2.right);
+                currentVelocity += dir * wallJumpSetting.length * jumpForce;
+            }
+
+
             jumpTime += Time.fixedDeltaTime;
         }
 
@@ -99,7 +141,13 @@ public class Character2D : MonoBehaviour
 
         // 數值補正
         currentVelocity.x = Mathf.Lerp(currentVelocity.x, 0, deAccScale);
-        currentVelocity.y -= isOnGorund ? 0 : gravity;
+        if (!isOnGorund)
+        {
+            if (isOnWall && currentVelocity.y <= 0)
+                currentVelocity.y = -2f;    // 需定義
+            else
+                currentVelocity.y -= gravity;
+        }
 
         currentVelocity.x = Mathf.Clamp(currentVelocity.x, -maxAcc, +maxAcc);
         // currentVelocity.y = Mathf.Clamp(currentVelocity.y, isOnGorund ? 0 : -maxAcc, +maxAcc);
@@ -122,25 +170,26 @@ public class Character2D : MonoBehaviour
         {
             jumpCount = 0;
             isOnGorund = true;
-            jumpTime=0;
-                        if (Input.GetKey(jumpKey)) Jump();
+            jumpTime = 0;
+            if (Input.GetKey(jumpKey)) Jump();
         }
+
+        // isOnWall = CheckWall();
     }
 
-    // private void OnCollisionStay2D(Collision2D other)
-    // {
-    //     var go = other.gameObject;
-    //     var layer = 1 << go.layer;
-    //     if (layer == groundLayer && !isOnGorund && CheckGround())
-    //     {
-    //         jumpCount = 0;
-    //         isOnGorund = true;
-    //         jumpTime=0;
-    //                     // if (Input.GetKey(jumpKey)) Jump();
-    //     }
-
-    //     isOnWall = CheckWall();
-    // }
+    private void OnCollisionStay2D(Collision2D other)
+    {
+        // var go = other.gameObject;
+        // var layer = 1 << go.layer;
+        // if (layer == groundLayer && !isOnGorund && CheckGround())
+        // {
+        //     jumpCount = 0;
+        //     isOnGorund = true;
+        //     jumpTime=0;
+        //                 // if (Input.GetKey(jumpKey)) Jump();
+        // }
+        isOnWall = CheckWall();
+    }
 
     private void OnCollisionExit2D(Collision2D other)
     {
@@ -157,6 +206,9 @@ public class Character2D : MonoBehaviour
     #region Movement
     void Jump()
     {
+        if (isOnWall)
+            jumpCount = 0;
+
         if (jumpCount < jumpMaxCount)
             currentVelocity.y = 0;
         jumpCount++;
@@ -180,6 +232,12 @@ public class Character2D : MonoBehaviour
 
     bool CheckWall()
     {
+        if (isOnGorund)
+            return false;
+
+        if ((state & (int)State.HoldingArrow) != (int)State.HoldingArrow)
+            return false;
+
         foreach (var wcs in wallCastSettings)
         {
             var origin = (Vector2)transform.position + wcs.offset;
@@ -198,6 +256,7 @@ public class Character2D : MonoBehaviour
         if (groundCastSettings == null)
             return;
 
+        // Ground cast gizmo
         foreach (var gcs in groundCastSettings)
         {
             Gizmos.color = gcs.gizmoColor;
@@ -205,6 +264,7 @@ public class Character2D : MonoBehaviour
             Gizmos.DrawLine(origin, gcs.Direction * gcs.length + origin);
         }
 
+        // Wall cast gizmo
         foreach (var wcs in wallCastSettings)
         {
             Gizmos.color = wcs.gizmoColor;
@@ -213,5 +273,11 @@ public class Character2D : MonoBehaviour
             // Gizmos.DrawLine(origin, wcs.Direction * wcs.length + origin);
             Gizmos.DrawLine(origin, (Vector2)transform.right * wcs.length + origin);
         }
+
+        // Wall jump gizmo
+        Gizmos.color = wallJumpSetting.gizmoColor;
+        Gizmos.DrawLine(
+            (Vector2)transform.position + wallJumpSetting.offset,
+            wallJumpSetting.Direction * wallJumpSetting.length + (Vector2)transform.position + wallJumpSetting.offset);
     }
 }
