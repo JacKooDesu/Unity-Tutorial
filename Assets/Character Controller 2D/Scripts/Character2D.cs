@@ -8,6 +8,8 @@ public class Character2D : MonoBehaviour
     [Header("參數")]
     public float gravity;   // 引力
     [Range(0, 1f)] public float deAccScale = .2f;   // 剎車強度
+    public LayerMask deadZoneLayer;
+    public LayerMask checkPointLayer;
 
     [Header("按鍵綁定")]
     public KeyCode jumpKey = KeyCode.Space;
@@ -20,9 +22,11 @@ public class Character2D : MonoBehaviour
 
     [Header("跳躍設定")]
     public LayerMask groundLayer;   // 地面 layer
+    public LayerMask headLayer;     // 頭部偵測 layer
     public LayerMask wallLayer;     // 牆壁layer
     public float jumpForce = .1f;    // 跳躍力道
     public int jumpMaxCount = 2;    // 跳躍次數
+    public bool bunnyHop = true;  // 連跳
     [Range(0f, 1f)] public float jumpTimeMax = .1f;
     [SerializeField] int jumpCount; // 已跳躍次數
     float jumpTime = 0f;
@@ -54,6 +58,7 @@ public class Character2D : MonoBehaviour
 
     [Header("射線設定")]
     public CastSetting[] groundCastSettings;
+    public CastSetting[] headCastSettings;
     public CastSetting[] wallCastSettings;
     public CastSetting wallJumpSetting;
 
@@ -63,6 +68,9 @@ public class Character2D : MonoBehaviour
     [SerializeField] bool isOnGorund = false;
     [SerializeField] bool isOnWall = false;
     Vector2 currentVelocity;
+
+    // 位置參數
+    Vector2 checkPoint;
 
     public enum State
     {
@@ -77,6 +85,8 @@ public class Character2D : MonoBehaviour
     {
         rig = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
+
+        checkPoint = transform.position;
     }
 
     private void Update()
@@ -112,16 +122,16 @@ public class Character2D : MonoBehaviour
     {
         if (jumpCount <= jumpMaxCount && jumpTime < jumpTimeMax && Input.GetKey(jumpKey))
         {
-            if (!isOnWall)
+            if (isOnWall && jumpCount > 1)
             {
-                currentVelocity.y += jumpForce;
+                var dir = (state & (int)State.FaceRight) == (int)State.FaceRight ?
+                            wallJumpSetting.Direction :
+                            Vector2.Reflect(wallJumpSetting.Direction, Vector2.right);
+                currentVelocity += dir * wallJumpSetting.length * jumpForce;
             }
             else
             {
-                var dir = (state & (int)State.FaceRight) == (int)State.FaceRight ?
-                    wallJumpSetting.Direction :
-                    Vector2.Reflect(wallJumpSetting.Direction, Vector2.right);
-                currentVelocity += dir * wallJumpSetting.length * jumpForce;
+                currentVelocity.y += jumpForce;
             }
 
 
@@ -170,8 +180,18 @@ public class Character2D : MonoBehaviour
         {
             jumpCount = 0;
             isOnGorund = true;
-            jumpTime = 0;
-            if (Input.GetKey(jumpKey)) Jump();
+            if (bunnyHop && Input.GetKey(jumpKey))
+            {
+                jumpTime = 0;
+                Jump();
+            }
+        }
+
+        if (layer == groundLayer && CheckHead())
+        {
+            print("head hit");
+            // jumpTime = jumpTimeMax;
+            currentVelocity.y = 0;
         }
 
         // isOnWall = CheckWall();
@@ -189,6 +209,10 @@ public class Character2D : MonoBehaviour
         //                 // if (Input.GetKey(jumpKey)) Jump();
         // }
         isOnWall = CheckWall();
+        if (isOnWall)
+        {
+            jumpCount = 1;
+        }
     }
 
     private void OnCollisionExit2D(Collision2D other)
@@ -201,13 +225,29 @@ public class Character2D : MonoBehaviour
         }
     }
 
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        var go = other.gameObject;
+        var layer = 1 << go.layer;
+        if (layer == deadZoneLayer)
+        {
+            print("Dead!");
+            ResetPosition();
+        }
+
+        if(layer==checkPointLayer){
+            print("Checked!");
+            checkPoint = transform.position;
+        }
+    }
+
     #endregion
 
     #region Movement
     void Jump()
     {
         if (isOnWall)
-            jumpCount = 0;
+            jumpCount = 1;
 
         if (jumpCount < jumpMaxCount)
             currentVelocity.y = 0;
@@ -216,6 +256,7 @@ public class Character2D : MonoBehaviour
     }
     #endregion
 
+    #region Cast Check
     bool CheckGround()
     {
         foreach (var gcs in groundCastSettings)
@@ -223,6 +264,20 @@ public class Character2D : MonoBehaviour
             var origin = (Vector2)transform.position + gcs.offset;
 
             var hit = Physics2D.Raycast(origin, gcs.Direction, gcs.length, groundLayer);
+
+            if (hit.transform != null) return true;
+        }
+
+        return false;
+    }
+
+    bool CheckHead()
+    {
+        foreach (var hcs in headCastSettings)
+        {
+            var origin = (Vector2)transform.position + hcs.offset;
+
+            var hit = Physics2D.Raycast(origin, hcs.Direction, hcs.length, headLayer);
 
             if (hit.transform != null) return true;
         }
@@ -251,6 +306,16 @@ public class Character2D : MonoBehaviour
         return false;
     }
 
+    #endregion
+
+    [ContextMenu("重置位置")]
+    public void ResetPosition()
+    {
+        // rig.MovePosition(checkPoint);
+        transform.position = checkPoint;
+        currentVelocity = Vector2.zero;
+    }
+
     private void OnDrawGizmosSelected()
     {
         if (groundCastSettings == null)
@@ -262,6 +327,14 @@ public class Character2D : MonoBehaviour
             Gizmos.color = gcs.gizmoColor;
             var origin = (Vector2)transform.position + gcs.offset;
             Gizmos.DrawLine(origin, gcs.Direction * gcs.length + origin);
+        }
+
+        // Head cast gizmo
+        foreach (var hcs in headCastSettings)
+        {
+            Gizmos.color = hcs.gizmoColor;
+            var origin = (Vector2)transform.position + hcs.offset;
+            Gizmos.DrawLine(origin, hcs.Direction * hcs.length + origin);
         }
 
         // Wall cast gizmo
