@@ -72,8 +72,14 @@ public class Character2D : MonoBehaviour
     [SerializeField] bool isFloating = false;
     Vector2 currentVelocity;
 
+    Checkpoint lastCheckpoint;
+
+    // 事件
+    public System.Action onDeadEvent;
+    public System.Action onNewCheckpoint;
+
     // 位置參數
-    Vector2 checkPoint;
+    Vector2 checkpointPos;
 
     public enum State
     {
@@ -89,7 +95,7 @@ public class Character2D : MonoBehaviour
         rig = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
 
-        checkPoint = transform.position;
+        checkpointPos = transform.position;
 
         keybinding.onBindKey += () => UpdateKey();
     }
@@ -238,15 +244,25 @@ public class Character2D : MonoBehaviour
         if (layer == deadZoneLayer)
         {
             print("Dead!");
+            if (onDeadEvent != null)
+                onDeadEvent.Invoke();
+
             ResetPosition();
         }
 
         if (layer == checkPointLayer)
         {
             print("Checked!");
-            checkPoint = transform.position;
-            if (go.GetComponent<Checkpoint>())
+            checkpointPos = transform.position;
+            Checkpoint checkpoint;
+            if (checkpoint = go.GetComponent<Checkpoint>())
                 go.GetComponent<Checkpoint>().Checked();
+
+            if (onNewCheckpoint != null && checkpoint != lastCheckpoint)
+            {
+                lastCheckpoint = checkpoint;
+                onNewCheckpoint.Invoke();
+            }
         }
 
         if (layer == floatingLayer)
@@ -341,7 +357,7 @@ public class Character2D : MonoBehaviour
     public void ResetPosition()
     {
         // rig.MovePosition(checkPoint);
-        transform.position = checkPoint;
+        transform.position = checkpointPos;
         currentVelocity = Vector2.zero;
     }
 

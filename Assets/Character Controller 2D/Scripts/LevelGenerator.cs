@@ -10,10 +10,16 @@ public class LevelGenerator : MonoBehaviour
     List<Stage> stgs = new List<Stage>();
     [SerializeField] List<Rect> rects = new List<Rect>();    // 計算是否重疊
 
+    public bool loadMode;
+    public static string targetLevelName;
+
     private void Start()
     {
-        // StartCoroutine(TestGenerate());
-        LoadLevel(stageSetting);
+        if (!loadMode)
+            Generate();
+            //StartCoroutine(TestGenerate());
+        else
+            LoadLevel(targetLevelName);
     }
 
     [ContextMenu("測試")]
@@ -29,7 +35,10 @@ public class LevelGenerator : MonoBehaviour
         while (iter < stageCount && maxTry >= 0)
         {
             if (Connect())
+            {
                 iter++;
+            }
+
 
             if (maxTry == 0)
             {
@@ -152,22 +161,23 @@ public class LevelGenerator : MonoBehaviour
 
     public void SaveLevel()
     {
-        // $"Lv-{System.DateTime.Now.ToString("MM/dd/yyyy HH:mm")}"
+        if (loadMode)
+            return;
+
         FileManagerTutorial.FileManager<LevelData>.Save(
-            "Level",
+            $"Lv-{System.DateTime.Now.ToString("MM-dd-yyyy-HH-mm")}",
             LevelUtil.Stages2Data(stageSetting, stgs),
-            "Save");
+            "Save/Levels");
     }
 
-    public void LoadLevel(StageSetting setting, string version = "1.0")
+    public void LoadLevel(string levelName, string version = "1.0")
     {
         var data = new LevelData();
-        FileManagerTutorial.FileManager<LevelData>.Load("Save", "Level", data);
+        FileManagerTutorial.FileManager<LevelData>.Load("Save/Levels", levelName, data);
         List<Stage> tempStages = new List<Stage>();
 
         foreach (var stgData in data.stageDatas)
         {
-            print("Hey");
             Stage prefab;
             switch (stgData.stgType)
             {
@@ -204,12 +214,14 @@ public class LevelGenerator : MonoBehaviour
             if (stg.stgType == Stage.StageType.Connector)
             {
                 var cnt = (stg as Connector);
+                // cnt.Setup(-1, lastStg.exit.position, cnt.inDir, cnt.outDir);
                 cnt.Setup(-1, lastStg.exit.position, cnt.inDir, cnt.outDir);
+
                 stgs.Add(cnt);
             }
             else
             {
-                stg.Setup(stg.stgTypeIndex, lastStg.exit.position, DirectionUtils.DirectionInverse(lastStg.outDir));
+                stg.Setup(stg.stgTypeIndex, lastStg.exit.position, DirectionUtils.DirectionInverse(lastStg.outDir), stg.inverse);
                 stgs.Add(stg);
             }
         }

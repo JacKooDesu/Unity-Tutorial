@@ -20,10 +20,10 @@ public class Stage : MonoBehaviour
     public StageType stgType;
     [HideInInspector] public bool inverse = false;
 
-    public void Setup(int index, Vector2 pos, Direction lastDir)
+    public void Setup(int index, Vector2 pos, Direction lastDir, bool forceInverse = false)
     {
         this.stgTypeIndex = index;
-        if (lastDir != inDir)
+        if (lastDir != inDir || forceInverse)
         {
             // 可能須改寫
             switch (stgType)
