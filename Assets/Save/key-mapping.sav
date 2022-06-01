@@ -1,0 +1,19 @@
+{
+    "keySettings": [
+        {
+            "name": "Left",
+            "keyCode": 276
+        },
+        {
+            "name": "Right",
+            "keyCode": 275
+        },
+        {
+            "name": "Jump",
+            "keyCode": 32
+        }
+    ],
+    "ui": {
+        "instanceID": 91720
+    }
+}

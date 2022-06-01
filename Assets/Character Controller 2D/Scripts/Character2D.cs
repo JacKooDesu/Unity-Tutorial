@@ -10,8 +10,10 @@ public class Character2D : MonoBehaviour
     [Range(0, 1f)] public float deAccScale = .2f;   // 剎車強度
     public LayerMask deadZoneLayer;
     public LayerMask checkPointLayer;
+    public LayerMask floatingLayer;
 
     [Header("按鍵綁定")]
+    public Keybinding keybinding;
     public KeyCode jumpKey = KeyCode.Space;
     public KeyCode leftKey = KeyCode.LeftArrow;
     public KeyCode rightKey = KeyCode.RightArrow;
@@ -67,6 +69,7 @@ public class Character2D : MonoBehaviour
     Collider2D col;
     [SerializeField] bool isOnGorund = false;
     [SerializeField] bool isOnWall = false;
+    [SerializeField] bool isFloating = false;
     Vector2 currentVelocity;
 
     // 位置參數
@@ -87,6 +90,8 @@ public class Character2D : MonoBehaviour
         col = GetComponent<Collider2D>();
 
         checkPoint = transform.position;
+
+        keybinding.onBindKey += () => UpdateKey();
     }
 
     private void Update()
@@ -167,7 +172,8 @@ public class Character2D : MonoBehaviour
         //     rig.position +
         //     Vector2.right * Mathf.Clamp(currentAcc, -maxAcc, +maxAcc) +
         //     Vector2.up * up);
-        rig.MovePosition(currentVelocity * Time.fixedDeltaTime + rig.position);
+        float floatingOffset = isFloating ? .25f : 1f;
+        rig.MovePosition(currentVelocity * floatingOffset * Time.fixedDeltaTime + rig.position);
     }
 
     #region CollisionTest
@@ -235,9 +241,29 @@ public class Character2D : MonoBehaviour
             ResetPosition();
         }
 
-        if(layer==checkPointLayer){
+        if (layer == checkPointLayer)
+        {
             print("Checked!");
             checkPoint = transform.position;
+            if (go.GetComponent<Checkpoint>())
+                go.GetComponent<Checkpoint>().Checked();
+        }
+
+        if (layer == floatingLayer)
+        {
+            print("Floating!");
+            isFloating = true;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        var go = other.gameObject;
+        var layer = 1 << go.layer;
+
+        if (layer == floatingLayer)
+        {
+            isFloating = false;
         }
     }
 
@@ -248,6 +274,9 @@ public class Character2D : MonoBehaviour
     {
         if (isOnWall)
             jumpCount = 1;
+
+        if (isFloating)
+            jumpCount = 0;
 
         if (jumpCount < jumpMaxCount)
             currentVelocity.y = 0;
@@ -287,7 +316,7 @@ public class Character2D : MonoBehaviour
 
     bool CheckWall()
     {
-        if (isOnGorund)
+        if (isOnGorund || isFloating)
             return false;
 
         if ((state & (int)State.HoldingArrow) != (int)State.HoldingArrow)
@@ -314,6 +343,13 @@ public class Character2D : MonoBehaviour
         // rig.MovePosition(checkPoint);
         transform.position = checkPoint;
         currentVelocity = Vector2.zero;
+    }
+
+    public void UpdateKey()
+    {
+        leftKey = keybinding.keySettings[0].keyCode;
+        rightKey = keybinding.keySettings[1].keyCode;
+        jumpKey = keybinding.keySettings[2].keyCode;
     }
 
     private void OnDrawGizmosSelected()
