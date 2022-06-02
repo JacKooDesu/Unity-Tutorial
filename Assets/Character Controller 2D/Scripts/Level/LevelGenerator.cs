@@ -16,8 +16,8 @@ public class LevelGenerator : MonoBehaviour
     private void Start()
     {
         if (!loadMode)
-            Generate();
-            //StartCoroutine(TestGenerate());
+            // Generate();
+            StartCoroutine(TestGenerate());
         else
             LoadLevel(targetLevelName);
     }
@@ -51,10 +51,8 @@ public class LevelGenerator : MonoBehaviour
             maxTry--;
         }
 
-        var lastDir = stgs[stgs.Count - 1].outDir;
-        var last = Instantiate(stageSetting.connector).GetComponent<Connector>();
-        last.Setup(-1, stgs[stgs.Count - 1].exit.position, DirectionUtils.DirectionInverse(lastDir), Direction.NONE);
-        stgs.Add(last);
+        var last = stgs[stgs.Count - 1] as Connector;
+        last.Setup(-1, last.entrance.position, last.inDir, Direction.NONE);
     }
 
     public bool Connect()
@@ -151,10 +149,8 @@ public class LevelGenerator : MonoBehaviour
             maxTry--;
         }
 
-        var lastDir = stgs[stgs.Count - 1].outDir;
-        var last = Instantiate(stageSetting.connector).GetComponent<Connector>();
-        last.Setup(-1, stgs[stgs.Count - 1].exit.position, DirectionUtils.DirectionInverse(lastDir), Direction.NONE);
-        stgs.Add(last);
+        var last = stgs[stgs.Count - 1] as Connector;
+        last.Setup(-1, last.entrance.position, last.inDir, Direction.NONE);
 
         yield break;
     }

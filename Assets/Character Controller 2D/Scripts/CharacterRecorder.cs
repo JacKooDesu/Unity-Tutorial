@@ -25,9 +25,25 @@ public class CharacterRecorder : MonoBehaviour
         {
             if (positions.Count != 0)
             {
+                var checkPoint = target.checkpointPos;
                 isReplaying = true;
-                replayTemper.Clear();
-                replayTemper.AddRange(positions);
+                
+                if (replayTemper.Count == 0)
+                {
+                    replayTemper.Clear();
+                    replayTemper.AddRange(positions);
+                    positions.Clear();
+
+                    return;
+                }
+
+                var oldDst = Vector2.Distance(replayTemper[replayTemper.Count - 1], checkPoint);
+                var newDst = Vector2.Distance(positions[positions.Count - 1], checkPoint);
+                if (newDst > oldDst)
+                {
+                    replayTemper.Clear();
+                    replayTemper.AddRange(positions);
+                }
                 positions.Clear();
             }
         };

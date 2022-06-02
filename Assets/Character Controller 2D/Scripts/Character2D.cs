@@ -18,6 +18,7 @@ public class Character2D : MonoBehaviour
     public KeyCode leftKey = KeyCode.LeftArrow;
     public KeyCode rightKey = KeyCode.RightArrow;
 
+
     [Header("移動設定")]
     public float acceleration = 5f; // 加速度
     public float maxAcc = 10f;      // 最高速
@@ -64,9 +65,13 @@ public class Character2D : MonoBehaviour
     public CastSetting[] wallCastSettings;
     public CastSetting wallJumpSetting;
 
+    [Header("音效")]
+    [SerializeField] AudioClip onCheckSound;
+
     // 內部變數
     Rigidbody2D rig;
     Collider2D col;
+    AudioSource audioSource;
     [SerializeField] bool isOnGorund = false;
     [SerializeField] bool isOnWall = false;
     [SerializeField] bool isFloating = false;
@@ -79,7 +84,7 @@ public class Character2D : MonoBehaviour
     public System.Action onNewCheckpoint;
 
     // 位置參數
-    Vector2 checkpointPos;
+    [HideInInspector] public Vector2 checkpointPos;
 
     public enum State
     {
@@ -97,7 +102,10 @@ public class Character2D : MonoBehaviour
 
         checkpointPos = transform.position;
 
-        keybinding.onBindKey += () => UpdateKey();
+        // if ((keybinding = FindObjectOfType<Keybinding>()) != null)
+        //     keybinding.onBindKey += () => UpdateKey();
+
+        BindSound();
     }
 
     private void Update()
@@ -361,11 +369,30 @@ public class Character2D : MonoBehaviour
         currentVelocity = Vector2.zero;
     }
 
+    // 按鍵綁定
     public void UpdateKey()
     {
         leftKey = keybinding.keySettings[0].keyCode;
         rightKey = keybinding.keySettings[1].keyCode;
         jumpKey = keybinding.keySettings[2].keyCode;
+    }
+
+    // 音效綁定
+    public void BindSound()
+    {
+        if ((audioSource = GetComponentInChildren<AudioSource>()) == null)
+            return;
+
+        onNewCheckpoint += () =>
+        {
+            var audio = Instantiate(audioSource, transform);
+            audio.clip = onCheckSound;
+            audio.Play();
+            var timer = new CoroutineUtility.Timer(
+                onCheckSound.length,
+                () => Destroy(audio.gameObject)
+            );
+        };
     }
 
     private void OnDrawGizmosSelected()
