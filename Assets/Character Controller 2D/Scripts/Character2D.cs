@@ -18,6 +18,11 @@ public class Character2D : MonoBehaviour
     public KeyCode leftKey = KeyCode.LeftArrow;
     public KeyCode rightKey = KeyCode.RightArrow;
 
+    public VirtualInput virtualInput;
+    VirtualInput.VirtualKey virtualJumpKey;
+    VirtualInput.VirtualKey virtualLeftKey;
+    VirtualInput.VirtualKey virtualRightKey;
+
 
     [Header("移動設定")]
     public float acceleration = 5f; // 加速度
@@ -106,28 +111,35 @@ public class Character2D : MonoBehaviour
         //     keybinding.onBindKey += () => UpdateKey();
 
         BindSound();
+
+        virtualJumpKey = virtualInput.virtualKeys[2];
+        virtualLeftKey = virtualInput.virtualKeys[0];
+        virtualRightKey = virtualInput.virtualKeys[1];
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(jumpKey))
+        if (Input.GetKeyDown(jumpKey) || (virtualJumpKey.changeState && virtualJumpKey.isPressing))
             Jump();
 
-        if (Input.GetKeyUp(jumpKey))
+        if (Input.GetKeyUp(jumpKey) || (virtualJumpKey.changeState && virtualJumpKey.isReleased))
             jumpTime = 0f;
 
-        if (Input.GetKeyDown(rightKey))
+        if (Input.GetKeyDown(rightKey) || (virtualRightKey.changeState && virtualRightKey.isPressing))
         {
             transform.rotation = Quaternion.Euler(0, 0, 0);
             state = (int)State.FaceRight;
         }
-        else if (Input.GetKeyDown(leftKey))
+        else if (Input.GetKeyDown(leftKey) || (virtualLeftKey.changeState && virtualLeftKey.isPressing))
         {
             transform.rotation = Quaternion.Euler(0, 180, 0);
             state = (int)State.FaceLeft;
         }
 
-        if (!Input.GetKey(rightKey) && !Input.GetKey(leftKey))
+        if (
+            (!Input.GetKey(rightKey) && !Input.GetKey(leftKey)) &&
+            (virtualRightKey.isReleased && virtualLeftKey.isReleased)
+        )
         {
             state &= (int)State.HoldingArrow ^ state;
         }
@@ -139,7 +151,7 @@ public class Character2D : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (jumpCount <= jumpMaxCount && jumpTime < jumpTimeMax && Input.GetKey(jumpKey))
+        if (jumpCount <= jumpMaxCount && jumpTime < jumpTimeMax && (Input.GetKey(jumpKey) || virtualJumpKey.isPressing))
         {
             if (isOnWall && jumpCount > 1)
             {
@@ -157,13 +169,16 @@ public class Character2D : MonoBehaviour
             jumpTime += Time.fixedDeltaTime;
         }
 
-        if (Input.GetKey(leftKey) && Input.GetKey(rightKey))
+        if (
+            Input.GetKey(leftKey) && Input.GetKey(rightKey) ||
+            (virtualRightKey.isPressing && virtualLeftKey.isPressing)
+        )
             currentVelocity.x += 0;
-        else if (Input.GetKey(leftKey))
+        else if (Input.GetKey(leftKey) || virtualLeftKey.isPressing)
         {
             currentVelocity.x -= acceleration;
         }
-        else if (Input.GetKey(rightKey))
+        else if (Input.GetKey(rightKey) || virtualRightKey.isPressing)
         {
             currentVelocity.x += acceleration;
         }
@@ -200,7 +215,7 @@ public class Character2D : MonoBehaviour
         {
             jumpCount = 0;
             isOnGorund = true;
-            if (bunnyHop && Input.GetKey(jumpKey))
+            if (bunnyHop && (Input.GetKey(jumpKey) || virtualJumpKey.isPressing))
             {
                 jumpTime = 0;
                 Jump();

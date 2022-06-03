@@ -20,7 +20,20 @@ public class VirtualInput : MonoBehaviour
         public State currentState = State.Released;
         public State lastState = State.Released;
 
+        public bool isPressing => currentState == State.Pressing;
+        public bool isReleased => currentState == State.Released;
+
         public bool changeState = false;
+
+        public void UpdateState()
+        {
+            if (lastState != currentState)
+                changeState = true;
+            else
+                changeState = false;
+
+            lastState = currentState;
+        }
     }
 
     public List<VirtualKey> virtualKeys = new List<VirtualKey>();
@@ -53,36 +66,65 @@ public class VirtualInput : MonoBehaviour
 
     private void Update()
     {
+        // MouseDebug();
+
+        print(Input.touchCount);
+        // foreach(var t in Input.touches)
+        //     print(t.position);
+    }
+
+    void MouseDebug()
+    {
         // FOR TEST
-        // var mousePos = (Vector2)Input.mousePosition - (offset / 2);
-        // // print(mousePos);
-        // foreach (var key in virtualKeys)
-        // {
-        //     var rect = key.trigger.rect;
-        //     rect.center = key.trigger.localPosition;
+        var mousePos = (Vector2)Input.mousePosition - (offset / 2);
+        // print(mousePos);
+        foreach (var key in virtualKeys)
+        {
+            var rect = key.trigger.rect;
+            rect.center = key.trigger.localPosition;
 
-        //     print(rect);
+            if (rect.Contains(mousePos))
+            {
+                key.currentState = VirtualKey.State.Pressing;
+            }
+            else
+            {
+                key.currentState = VirtualKey.State.Released;
+            }
 
-        //     if (rect.Contains(mousePos))
-        //         print(key.name);
-        // }
+            key.UpdateState();
+        }
     }
 
     private void FixedUpdate()
     {
-        foreach (var touch in Input.touches)
+        foreach (var key in virtualKeys)
         {
-            var touchPos = touch.position - (offset / 2);
-            // print(touch.position);
-            foreach (var key in virtualKeys)
+            if (Input.touchCount == 0)
             {
-                if (key.lastState != key.currentState)
-                    key.changeState = true;
-                else
-                    key.changeState = false;
-
-                key.lastState = key.currentState;
+                key.currentState = VirtualKey.State.Released;
+                key.UpdateState();
+                continue;
             }
+
+            var rect = key.trigger.rect;
+            rect.center = key.trigger.localPosition;
+
+            foreach (var touch in Input.touches)
+            {
+                var touchPos = touch.position - (offset / 2);
+                if (rect.Contains(touchPos))
+                {
+                    key.currentState = VirtualKey.State.Pressing;
+                    break;
+                }
+                else
+                {
+                    key.currentState = VirtualKey.State.Released;
+                }
+            }
+
+            key.UpdateState();
         }
     }
 }
