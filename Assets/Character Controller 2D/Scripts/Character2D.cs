@@ -102,8 +102,8 @@ public class Character2D : MonoBehaviour
 
         checkpointPos = transform.position;
 
-        // if ((keybinding = FindObjectOfType<Keybinding>()) != null)
-        //     keybinding.onBindKey += () => UpdateKey();
+        if ((keybinding = FindObjectOfType<Keybinding>()) != null)
+            keybinding.onBindKey += () => UpdateKey();
 
         BindSound();
     }
