@@ -6,15 +6,27 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Character Controller 2D/Scenes/C2D Menu.unity
+    path: Assets/Character Controller 2D/Scenes/Menu.unity
+    guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Character Controller 2D/Scenes/Local/C2D Menu Local.unity
     guid: 6ee35fe3ba015ad448fa8e28462ef5f5
   - enabled: 1
-    path: Assets/Character Controller 2D/Scenes/Character Controller 01.unity
+    path: Assets/Character Controller 2D/Scenes/Local/C2D New Game.unity
     guid: 0ee41094917992a4881df38855c91620
   - enabled: 1
-    path: Assets/Character Controller 2D/Scenes/Character Controller Load.unity
+    path: Assets/Character Controller 2D/Scenes/Local/C2D Load Game.unity
     guid: 27cfc2f52b6e7a04d9a9baa0e70d0618
+  - enabled: 1
+    path: Assets/Character Controller 2D/Scenes/Network/C2D Menu Network.unity
+    guid: b97b0e746056bb94e8cae5ac61253930
   - enabled: 0
-    path: Assets/Discord Rich Presence/Scenes/Discord Rich Presence.unity
-    guid: 3612c8ac67121a94a9579ad6e8bd54b8
+    path: Assets/Mirror/Examples/Room/Scenes/OfflineScene.unity
+    guid: 9e6f14982412b2545a0911ebaaa46a23
+  - enabled: 0
+    path: Assets/Mirror/Examples/Room/Scenes/OnlineScene.unity
+    guid: d7a6763559b31854586c9e49916273ef
+  - enabled: 0
+    path: Assets/Mirror/Examples/Room/Scenes/RoomScene.unity
+    guid: 48478f4d522f96945b8396f376299d3a
   m_configObjects: {}

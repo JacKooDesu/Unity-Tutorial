@@ -5,6 +5,7 @@ using System.IO;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using C2DGame.System;
 
 public class LevelSelectorUi : MonoBehaviour
 {
@@ -18,12 +19,19 @@ public class LevelSelectorUi : MonoBehaviour
 
     public Button newGameBtn, loadBtn;
 
+    const string NEW_GAME_SCENE = "C2D New Game";
+    const string LOAD_GAME_SCENE = "C2D Load Game";
+
     private void Start()
     {
         LoadFile();
 
-        newGameBtn.onClick.AddListener(() => Play(false));
-        loadBtn.onClick.AddListener(() => Play(true));
+        if (GameHandler.gameState == GameState.LOCAL ||
+            GameHandler.gameState == GameState.IDLE)
+        {
+            newGameBtn.onClick.AddListener(() => Play(false));
+            loadBtn.onClick.AddListener(() => Play(true));
+        }
     }
 
     void LoadFile()
@@ -34,7 +42,7 @@ public class LevelSelectorUi : MonoBehaviour
             var files = di.GetFiles("*.sav");
             foreach (var f in files)
             {
-                print(f.Name);
+                // print(f.Name);
 
                 string tempFileName = f.Name.Replace(".sav", "");
 
@@ -65,11 +73,11 @@ public class LevelSelectorUi : MonoBehaviour
         if (isLoadMode)
         {
             LevelGenerator.targetLevelName = tempLevelName;
-            SceneManager.LoadScene(2);
+            SceneManager.LoadScene(LOAD_GAME_SCENE);
         }
         else
         {
-            SceneManager.LoadScene(1);
+            SceneManager.LoadScene(NEW_GAME_SCENE);
         }
     }
 

@@ -1,0 +1,152 @@
+{
+    "version": "1.0",
+    "stageDatas": [
+        {
+            "stgType": 2,
+            "index": -1,
+            "inverse": false,
+            "inDir": -1,
+            "outDir": 1
+        },
+        {
+            "stgType": 0,
+            "index": 3,
+            "inverse": false,
+            "inDir": 3,
+            "outDir": 1
+        },
+        {
+            "stgType": 2,
+            "index": -1,
+            "inverse": false,
+            "inDir": 3,
+            "outDir": 1
+        },
+        {
+            "stgType": 0,
+            "index": 3,
+            "inverse": false,
+            "inDir": 3,
+            "outDir": 1
+        },
+        {
+            "stgType": 2,
+            "index": -1,
+            "inverse": false,
+            "inDir": 3,
+            "outDir": 0
+        },
+        {
+            "stgType": 1,
+            "index": 0,
+            "inverse": true,
+            "inDir": 2,
+            "outDir": 0
+        },
+        {
+            "stgType": 2,
+            "index": -1,
+            "inverse": false,
+            "inDir": 2,
+            "outDir": 3
+        },
+        {
+            "stgType": 0,
+            "index": 4,
+            "inverse": true,
+            "inDir": 1,
+            "outDir": 3
+        },
+        {
+            "stgType": 2,
+            "index": -1,
+            "inverse": false,
+            "inDir": 1,
+            "outDir": 3
+        },
+        {
+            "stgType": 0,
+            "index": 4,
+            "inverse": true,
+            "inDir": 1,
+            "outDir": 3
+        },
+        {
+            "stgType": 2,
+            "index": -1,
+            "inverse": false,
+            "inDir": 1,
+            "outDir": 3
+        },
+        {
+            "stgType": 0,
+            "index": 0,
+            "inverse": true,
+            "inDir": 1,
+            "outDir": 3
+        },
+        {
+            "stgType": 2,
+            "index": -1,
+            "inverse": false,
+            "inDir": 1,
+            "outDir": 3
+        },
+        {
+            "stgType": 0,
+            "index": 3,
+            "inverse": true,
+            "inDir": 1,
+            "outDir": 3
+        },
+        {
+            "stgType": 2,
+            "index": -1,
+            "inverse": false,
+            "inDir": 1,
+            "outDir": 0
+        },
+        {
+            "stgType": 1,
+            "index": 1,
+            "inverse": true,
+            "inDir": 2,
+            "outDir": 0
+        },
+        {
+            "stgType": 2,
+            "index": -1,
+            "inverse": false,
+            "inDir": 2,
+            "outDir": 0
+        },
+        {
+            "stgType": 1,
+            "index": 2,
+            "inverse": true,
+            "inDir": 2,
+            "outDir": 0
+        },
+        {
+            "stgType": 2,
+            "index": -1,
+            "inverse": false,
+            "inDir": 2,
+            "outDir": 0
+        },
+        {
+            "stgType": 1,
+            "index": 0,
+            "inverse": true,
+            "inDir": 2,
+            "outDir": 0
+        },
+        {
+            "stgType": 2,
+            "index": -1,
+            "inverse": false,
+            "inDir": 2,
+            "outDir": -1
+        }
+    ]
+}
