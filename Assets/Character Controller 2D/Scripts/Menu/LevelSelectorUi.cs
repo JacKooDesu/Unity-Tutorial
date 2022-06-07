@@ -5,7 +5,7 @@ using System.IO;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using C2DGame.System;
+using C2DGame.GameSystem;
 
 public class LevelSelectorUi : MonoBehaviour
 {
@@ -83,6 +83,9 @@ public class LevelSelectorUi : MonoBehaviour
 
     private void Update()
     {
+        if (GameHandler.gameState == GameState.NETWORK_CLIENT)
+            return;
+        
         if (tempLevelName.Length == 0)
             loadBtn.interactable = false;
         else

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using C2DGame.Networking;
 
-namespace C2DGame.System
+namespace C2DGame.GameSystem
 {
     public class GameHandler : MonoBehaviour
     {
@@ -31,14 +31,32 @@ namespace C2DGame.System
         public static GameState gameState;
         public static string targetIp;
 
-        public static string PlayerName { set; get; }
+        public static string PlayerName
+        {
+            set
+            {
+                playerData.playerName = value;
+                FileManagerTutorial.FileManager<PlayerData>.Save(PLAYER_DATA_NAME, playerData, "Save");
+            }
+            get
+            {
+                return playerData.playerName;
+            }
+        }
 
         public C2DNetworkManager manager;
 
-        #region Scene Names
-        const string SCENE_IDLE = "Menu";
-        const string SCENE_LOCAL = "C2D Menu Local";
-        const string SCENE_NETWORK = "C2D Menu Network";
+        #region Datas
+        static PlayerData playerData;
+
+        #endregion
+
+        #region Names
+        public const string SCENE_IDLE = "Menu";
+        public const string SCENE_LOCAL = "C2D Menu Local";
+        public const string SCENE_NETWORK = "C2D Menu Network";
+
+        public const string PLAYER_DATA_NAME = "PlayerData";
         #endregion
 
         private void Awake()
@@ -51,6 +69,8 @@ namespace C2DGame.System
 
             singleton = this;
             DontDestroyOnLoad(gameObject);
+
+            LoadPlayerData();
         }
 
         public void ProgressScene(GameState gameState)
@@ -76,6 +96,15 @@ namespace C2DGame.System
                     SceneManager.LoadScene(SCENE_IDLE);
                     return;
             }
+        }
+
+        public void LoadPlayerData()
+        {
+            playerData = new PlayerData();
+            FileManagerTutorial.FileManager<PlayerData>.Load("Save", PLAYER_DATA_NAME, playerData);
+
+            if (string.IsNullOrWhiteSpace(PlayerName))
+                PlayerName = "New Player";
         }
     }
 

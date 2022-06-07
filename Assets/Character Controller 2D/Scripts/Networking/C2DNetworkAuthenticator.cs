@@ -91,7 +91,7 @@ namespace C2DGame.Networking
         {
             AuthRequestMessage authRequestMessage = new AuthRequestMessage
             {
-                authUsername = System.GameHandler.PlayerName
+                authUsername = GameSystem.GameHandler.PlayerName
             };
 
             NetworkClient.connection.Send(authRequestMessage);

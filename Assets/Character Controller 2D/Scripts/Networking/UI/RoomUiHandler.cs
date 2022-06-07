@@ -50,7 +50,15 @@ namespace C2DGame.Networking.UI
 
         void BindButton()
         {
+            if (GameSystem.GameHandler.gameState != GameSystem.GameState.NETWORK_SERVER)
+            {
+                loadGameBtn.interactable = false;
+                newGameBtn.interactable = false;
+                return;
+            }
 
+            newGameBtn.onClick.AddListener(
+                () => networkManager.ServerChangeScene(networkManager.GameplayScene));
         }
     }
 }

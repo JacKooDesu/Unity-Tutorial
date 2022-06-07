@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using C2DGame.System;
+using C2DGame.GameSystem;
 
 public class MenuUi : MonoBehaviour
 {
@@ -34,5 +34,7 @@ public class MenuUi : MonoBehaviour
         ipInputField.onValueChanged.AddListener((ip) => GameHandler.targetIp = ip);
 
         nameInputField.onValueChanged.AddListener((name) => GameHandler.PlayerName = name);
+
+        nameInputField.text = GameHandler.PlayerName;
     }
 }

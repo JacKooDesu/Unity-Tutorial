@@ -22,17 +22,31 @@ namespace C2DGame.Networking
 
         public override void OnClientEnterRoom()
         {
+            // 進入房間才執行，避免過早執行物件還未註冊
+            if (roomUi == null)
+                roomUi = FindObjectOfType<UI.RoomUiHandler>();
+            if (roomUi != null)
+                roomUi.UpdatePlayerList();
+
+            base.OnStartClient();
+        }
+
+        public override void OnClientExitRoom()
+        {
+            // 進入房間才執行，避免過早執行物件還未註冊
             if (roomUi == null)
                 roomUi = FindObjectOfType<UI.RoomUiHandler>();
 
-            roomUi.UpdatePlayerList();
+            if (roomUi != null)
+                roomUi.UpdatePlayerList();
 
-            base.OnStartClient();
+            base.OnClientExitRoom();
         }
 
         public override void OnStartServer()
         {
             playerName = (string)connectionToClient.authenticationData;
+            readyToBegin = true;
         }
 
         void BindUi()

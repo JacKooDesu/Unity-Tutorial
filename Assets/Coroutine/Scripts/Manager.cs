@@ -43,6 +43,18 @@ namespace CoroutineUtility
                 coroutines.Add(id, new List<Coroutine>() { c });
         }
 
+        public void Add(IEnumerator coroutine, System.Action onComplete, string id)
+        {
+            Add(CoroutineRunner(coroutine, onComplete), id);
+        }
+
+        IEnumerator CoroutineRunner(IEnumerator coroutine, System.Action onComplete)
+        {
+            yield return coroutine;
+
+            onComplete.Invoke();
+        }
+
         public void Stop(string id)
         {
             if (!coroutines.ContainsKey(id))

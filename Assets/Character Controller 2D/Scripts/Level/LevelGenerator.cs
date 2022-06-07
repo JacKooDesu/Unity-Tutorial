@@ -15,44 +15,15 @@ public class LevelGenerator : MonoBehaviour
 
     private void Start()
     {
-        if (!loadMode)
-            // Generate();
-            StartCoroutine(TestGenerate());
-        else
-            LoadLevel(targetLevelName);
-    }
-
-    [ContextMenu("測試")]
-    public void Generate()
-    {
-        var first = Instantiate(stageSetting.connector).GetComponent<Connector>();
-        first.Setup(-1, Vector2.zero, Direction.NONE, Direction.RIGHT);
-        stgs.Add(first);
-        rects.Add(first.Bounds2Rect());
-
-        int iter = 0;
-        int maxTry = 10;
-        while (iter < stageCount && maxTry >= 0)
+        if (C2DGame.GameSystem.GameHandler.gameState == C2DGame.GameSystem.GameState.LOCAL ||
+            C2DGame.GameSystem.GameHandler.gameState == C2DGame.GameSystem.GameState.IDLE)
         {
-            if (Connect())
-            {
-                iter++;
-            }
-
-
-            if (maxTry == 0)
-            {
-                Destroy(stgs[stgs.Count - 1].gameObject);
-                stgs.RemoveAt(stgs.Count - 1);
-                rects.RemoveAt(rects.Count - 1);
-                InitConnector();
-                maxTry = 10;
-            }
-            maxTry--;
+            if (!loadMode)
+                // Generate();
+                StartCoroutine(Generate());
+            else
+                LoadLevel(targetLevelName);
         }
-
-        var last = stgs[stgs.Count - 1] as Connector;
-        last.Setup(-1, last.entrance.position, last.inDir, Direction.NONE);
     }
 
     public bool Connect()
@@ -118,9 +89,10 @@ public class LevelGenerator : MonoBehaviour
         rects.Add(cnt.Bounds2Rect());
     }
 
-    public IEnumerator TestGenerate()
+    public IEnumerator Generate()
     {
-        float interval = 1f;
+        // for test
+        // float interval = .01f;
 
         var first = Instantiate(stageSetting.connector).GetComponent<Connector>();
         first.Setup(-1, Vector2.zero, Direction.NONE, Direction.RIGHT);
@@ -134,7 +106,8 @@ public class LevelGenerator : MonoBehaviour
             if (Connect())
             {
                 iter++;
-                yield return new WaitForSeconds(interval);
+                // yield return new WaitForSeconds(interval);
+                yield return null;
             }
 
 
@@ -221,6 +194,66 @@ public class LevelGenerator : MonoBehaviour
                 stgs.Add(stg);
             }
         }
+    }
+
+    public void LoadLevel(List<LevelData.StageData> stageDatas)
+    {
+        List<Stage> tempStages = new List<Stage>();
+
+        foreach (var stgData in stageDatas)
+        {
+            Stage prefab;
+            switch (stgData.stgType)
+            {
+                case Stage.StageType.Horizontal:
+                    prefab = stageSetting.horizontalStgs[stgData.index];
+                    break;
+
+                case Stage.StageType.Vertical:
+                    prefab = stageSetting.verticalStgs[stgData.index];
+                    break;
+
+                case Stage.StageType.Connector:
+                    prefab = stageSetting.connector;
+                    break;
+
+                default:
+                    return;
+            }
+            var stg = Instantiate(prefab);
+            stg.stgTypeIndex = stgData.index;
+            stg.inDir = stgData.inDir;
+            stg.outDir = stgData.outDir;
+            stg.inverse = stgData.inverse;
+            tempStages.Add(stg);
+        }
+
+        var first = (tempStages[0] as Connector);
+        first.Setup(-1, Vector2.zero, first.inDir, first.outDir);
+        stgs.Add(first);
+        for (int i = 1; i < tempStages.Count; ++i)
+        {
+            var stg = tempStages[i];
+            var lastStg = tempStages[stgs.Count - 1];
+            if (stg.stgType == Stage.StageType.Connector)
+            {
+                var cnt = (stg as Connector);
+                // cnt.Setup(-1, lastStg.exit.position, cnt.inDir, cnt.outDir);
+                cnt.Setup(-1, lastStg.exit.position, cnt.inDir, cnt.outDir);
+
+                stgs.Add(cnt);
+            }
+            else
+            {
+                stg.Setup(stg.stgTypeIndex, lastStg.exit.position, DirectionUtils.DirectionInverse(lastStg.outDir), stg.inverse);
+                stgs.Add(stg);
+            }
+        }
+    }
+
+    public LevelData ToLevelData()
+    {
+        return LevelUtil.Stages2Data(stageSetting, stgs);
     }
 
     private void OnDrawGizmosSelected()
