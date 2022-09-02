@@ -13,7 +13,7 @@ public class DiscordRichPresenceHandler : MonoBehaviour
 
     void Start()
     {
-        discord = new Discord.Discord(980733539119153162, (System.UInt64)Discord.CreateFlags.Default);
+        discord = new Discord.Discord(980733539119153162, (System.UInt64)Discord.CreateFlags.NoRequireDiscord);
         var activityManager = discord.GetActivityManager();
         activity = new Discord.Activity
         {
